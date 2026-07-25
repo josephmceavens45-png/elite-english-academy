@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="ht">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">     <!-- Ranplase 'base.html' ak non paj mèt ou an si li diferan -->
+
+{% block content %}
+<style>
+  .payment-card {
+    border: none;
+    border-radius: 15px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    background: #ffffff;
+  }
+  .payment-header {
+    background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+    color: white;
+    border-radius: 15px 15px 0 0;
+    padding: 25px;
+  }
+  .payment-method-box {
+    background-color: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    padding: 15px;
+    margin-bottom: 15px;
+    transition: all 0.3s ease;
+  }
+  .payment-method-box:hover {
+    border-color: #3b82f6;
+    background-color: #f0f7ff;
+  }
+  .badge-moncash {
+    background-color: #e11d48;
+    color: white;
+    font-size: 1.1rem;
+    padding: 6px 12px;
+    border-radius: 8px;
+  }
+  .badge-natcash {
+    background-color: #0284c7;
+    color: white;
+    font-size: 1.1rem;
+    padding: 6px 12px;
+    border-radius: 8px;
+  }
+</style>
+
+<div class="container my-5">
+  <div class="row justify-content-center">
+    <div class="col-md-8 col-lg-7">
+      
+      <div class="card payment-card">
+        <!-- Tèt Paj la -->
+        <div class="payment-header text-center">
+          <h3 class="mb-1 font-weight-bold">💳 Peman</h3>
+          <p class="mb-0 text-white-50">Swiv etap sa yo pou w ka valide enskripsyon ou an</p>
+        </div>
+
+        <div class="card-body p-4">
+          
+          {% if peman_info %}
+            <h5 class="text-secondary mb-3">Kont/Nimewo pou fè transfè a:</h5>
+
+            <!-- 1. MonCash -->
+            {% if peman_info.nimewo_moncash %}
+              <div class="payment-method-box d-flex align-items-center justify-content-between">
+                <div>
+                  <h6 class="mb-1 text-dark fw-bold">📱 MonCash</h6>
+                  <small class="text-muted">Voye lajan an sou nimewo sa a</small>
+                </div>
+                <span class="badge-moncash">{{ peman_info.nimewo_moncash }}</span>
+              </div>
+            {% endif %}
+
+            <!-- 2. Natcash -->
+            {% if peman_info.nimewo_natcash %}
+              <div class="payment-method-box d-flex align-items-center justify-content-between">
+                <div>
+                  <h6 class="mb-1 text-dark fw-bold">📲 Natcash</h6>
+                  <small class="text-muted">Voye lajan an sou nimewo sa a</small>
+                </div>
+                <span class="badge-natcash">{{ peman_info.nimewo_natcash }}</span>
+              </div>
+            {% endif %}
+
+            <!-- 3. Kont Bank -->
+            {% if peman_info.enfomasyon_bank %}
+              <div class="payment-method-box">
+                <h6 class="mb-2 text-dark fw-bold">🏦 Kont Labank</h6>
+                <div class="p-2 bg-white rounded border text-secondary" style="white-space: pre-line;">
+                  {{ peman_info.enfomasyon_bank }}
+                </div>
+              </div>
+            {% endif %}
+
+            <!-- Nòt Enpòtan -->
+            {% if peman_info.note_enpotan %}
+              <div class="alert alert-warning mt-4 d-flex align-items-start" role="alert">
+                <span class="me-2 fs-5">📌</span>
+                <div>
+                  <strong>Nòt Enpòtan:</strong>
+                  <p class="mb-0 mt-1 small" style="white-space: pre-line;">{{ peman_info.note_enpotan }}</p>
+                </div>
+              </div>
+            {% endif %}
+
+          {% else %}
+            <!-- Si zanmi w lan poko mete enfòmasyon yo nan admin lan -->
+            <div class="alert alert-info text-center py-4">
+              <h5>ℹ️ Poko gen kote pou peye</h5>
+              <p class="mb-0 small text-muted">Silvouplè antre nan Dashboard Admin lan pou w ka konfigure nimewo MonCash, Natcash ak Kont Bank yo.</p>
+            </div>
+          {% endif %}
+
+          <hr class="my-4">
+
+          <!-- Fòm oswa Bouton pou konfime peman/voye prèv (Si w genyen l) -->
+          <div class="text-center">
+            <p class="text-muted small mb-3">Lè w fin fè transfè a, antre nan kontak nou an oswa voye prèv pou konfimasyon an.</p>
+            <a href="javascript:history.back()" class="btn btn-outline-secondary px-4 me-2">← Retounen</a>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="ht">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enskripsyon - Elite English Academy</title>
+    <style>
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            background-color: #f4f6f8; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            height: 100vh; 
+            margin: 0; 
+        }
+        .card { 
+            background: white; 
+            padding: 35px; 
+            border-radius: 12px; 
+            box-shadow: 0 8px 16px rgba(0,0,0,0.1); 
+            width: 100%; 
+            max-width: 400px; 
+        }
+        h2 { 
+            text-align: center; 
+            color: #1a365d; 
+            margin-bottom: 5px; 
+            font-size: 24px;
+        }
+        p.subtitle {
+            text-align: center; 
+            color: #718096; 
+            margin-top: 0;
+            margin-bottom: 25px;
+            font-size: 14px;
+        }
+        .form-group { 
+            margin-bottom: 18px; 
+        }
+        label { 
+            display: block; 
+            margin-bottom: 6px; 
+            font-weight: 600; 
+            color: #4a5568; 
+            font-size: 14px;
+        }
+        input { 
+            width: 100%; 
+            padding: 12px; 
+            border: 1px solid #cbd5e0; 
+            border-radius: 6px; 
+            box-sizing: border-box; 
+            font-size: 14px;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        input:focus {
+            border-color: #3182ce;
+        }
+        button { 
+            width: 100%; 
+            background-color: #d97706; 
+            color: white; 
+            padding: 12px; 
+            border: none; 
+            border-radius: 6px; 
+            font-weight: bold; 
+            cursor: pointer; 
+            font-size: 16px; 
+            margin-top: 10px; 
+            transition: background-color 0.2s;
+        }
+        button:hover { 
+            background-color: #b45309; 
+        }
+        .error { 
+            color: #e53e3e; 
+            font-size: 13px; 
+            margin-top: 4px;
+            display: block;
+        }
+    </style>
+</head>
+<body>
+
+<div class="card">
+    <h2>Elite English Academy</h2>
+    <p class="subtitle">Enskri pou w kòmanse swiv kou yo</p>
+
+    <form method="POST">
+        {% csrf_token %}
+        
+        {% if form.errors %}
+            <div class="error" style="margin-bottom: 15px; font-weight: bold;">
+                Tanpri verifye enfòmasyon yo reye nan fòm lan.
+            </div>
+        {% endif %}
+
+        <div class="form-group">
+            <label>Prenon</label>
+            {{ form.first_name }}
+        </div>
+
+        <div class="form-group">
+            <label>Non</label>
+            {{ form.last_name }}
+        </div>
+
+        <div class="form-group">
+            <label>Imel</label>
+            {{ form.email }}
+            {% if form.email.errors %}
+                <span class="error">{{ form.email.errors.0 }}</span>
+            {% endif %}
+        </div>
+
+        <button type="submit">Kreye Kont Mwen</button>
+    </form>
+</div>
+
+</body>
+</html>

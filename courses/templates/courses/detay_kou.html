@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="ht">
+{% load static %}
+{% load tz %} <!-- Enpòtan pou Django konpare lè aktyèl la ak dat limit la -->
+
+{% block content %}
+<div class="container my-5">
+
+  <!-- ENTÈT KOU A -->
+  <div class="row mb-4">
+    <div class="col-12">
+      <div class="card bg-primary text-white p-4 shadow-sm border-0">
+        <h2 class="fw-bold mb-1">{{ kou.tit }}</h2>
+        <p class="mb-0 text-white-50">{{ kou.description }}</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- KONTNI KOU A: DOKIMAN, DEVWA, AK TÈS -->
+  <div class="row g-4">
+
+    <!-- 1. SEKSYON DOKIMAN & RESOUS -->
+    <div class="col-md-4">
+      <div class="card p-3 shadow-sm border-0 h-100">
+        <h5 class="fw-bold text-dark mb-3">📁 Dokiman & Resous</h5>
+        <hr class="mt-0">
+
+        {% if dokiman_lis %}
+          <ul class="list-group list-group-flush">
+            {% for doc in dokiman_lis %}
+              <li class="list-group-item d-flex justify-content-between align-items-center px-0 bg-transparent border-bottom">
+                <div>
+                  <strong class="d-block text-dark">{{ doc.tit }}</strong>
+                  {% if doc.description %}
+                    <small class="text-muted d-block">{{ doc.description }}</small>
+                  {% endif %}
+                </div>
+                <a href="{{ doc.fichye.url }}" class="btn btn-sm btn-outline-primary ms-2" download>
+                  📥 Telechaje
+                </a>
+              </li>
+            {% endfor %}
+          </ul>
+        {% else %}
+          <p class="text-muted small">Poko gen dokiman ki disponib pou kou sa a.</p>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- 2. SEKSYON DEVWA (AK KONTWÒL OTOMATIK A MINUI OWA LÈ LIMIT) -->
+    <div class="col-md-4">
+      <div class="card p-3 shadow-sm border-0 h-100">
+        <h5 class="fw-bold text-dark mb-3">📝 Devwa pou Fè</h5>
+        <hr class="mt-0">
+
+        {% if devwa_lis %}
+          {% for devwa in devwa_lis %}
+            <div class="border-bottom pb-3 mb-3">
+              <h6 class="fw-bold text-primary mb-1">{{ devwa.tit }}</h6>
+              <p class="small text-secondary mb-2">{{ devwa.konsiy }}</p>
+
+              <!-- Si gen yon Dokiman atache nan devwa a -->
+              {% if devwa.fichye_dokiman %}
+                <div class="mb-2">
+                  <a href="{{ devwa.fichye_dokiman.url }}" class="btn btn-sm btn-light border text-dark" download>
+                    📎 Telechaje Fichye Konsiy Devwa a
+                  </a>
+                </div>
+              {% endif %}
+
+              <!-- Si devwa a gen yon Odyo pou yo koute -->
+              {% if devwa.fichye_odyo %}
+                <div class="mb-2 bg-light p-2 rounded border">
+                  <small class="d-block fw-bold text-primary mb-1">🎧 Koute odyo devwa a:</small>
+                  <audio controls class="w-100" style="height: 35px;">
+                    <source src="{{ devwa.fichye_odyo.url }}" type="audio/mpeg">
+                    Navigatè w la pa sipòte lektè odyo sa a.
+                  </audio>
+                </div>
+              {% endif %}
+
+              <!-- Si devwa a gen yon Videyo pou yo gade -->
+              {% if devwa.lyen_videyo %}
+                <div class="mb-2">
+                  <a href="{{ devwa.lyen_videyo }}" target="_blank" class="btn btn-sm btn-outline-danger w-100">
+                    🎬 Gade Videyo Devwa a
+                  </a>
+                </div>
+              {% elif devwa.fichye_videyo %}
+                <div class="mb-2">
+                  <video controls class="w-100 rounded border" style="max-height: 180px;">
+                    <source src="{{ devwa.fichye_videyo.url }}" type="video/mp4">
+                  </video>
+                </div>
+              {% endif %}
+
+              <!-- KONTWÒL ESPAS REMÈT DEVWA AN TAN REYÈL -->
+              <div class="mt-3 p-2 bg-light rounded border">
+                <small class="d-block text-dark fw-bold mb-1">
+                  ⏰ Dat limit: {{ devwa.date_limit|date:"d M Y nan h:i A" }}
+                </small>
+
+                {% if devwa.date_limit > now %}
+                  <!-- ESPAS LA LOUVRI PASKI LÈ A POKO PASE -->
+                  <span class="badge bg-success mb-2">Espas voye devwa: LOUVRI</span>
+                  
+                  <form action="" method="POST" enctype="multipart/form-data" class="mt-2">
+                    {% csrf_token %}
+                    <input type="hidden" name="devwa_id" value="{{ devwa.id }}">
+                    <div class="mb-2">
+                      <label class="form-label small text-muted mb-1">Mete fichye repons ou an la:</label>
+                      <input type="file" name="repons_devwa" class="form-control form-control-sm" required>
+                    </div>
+                    <button type="submit" class="btn btn-sm btn-primary w-100 fw-bold">
+                      Voye Devwa a Kounya
+                    </button>
+                  </form>
+
+                {% else %}
+                  <!-- ESPAS LA FÈMEN OTOMATIKMAN DEPIS LÈ A PASE -->
+                  <span class="badge bg-danger mb-1">Espas voye devwa: FÈMEN</span>
+                  <div class="alert alert-danger py-2 px-2 mt-2 mb-0 small" role="alert">
+                    🚫 Espas pou voye devwa sa a fèmen paske lè limit pwofesè a te fikse an fin pase.
+                  </div>
+                {% endif %}
+              </div>
+
+            </div>
+          {% endfor %}
+        {% else %}
+          <p class="text-muted small">Pa gen devwa ki disponib pou kounya.</p>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- 3. SEKSYON TÈS & EKSAMEN -->
+    <div class="col-md-4">
+      <div class="card p-3 shadow-sm border-0 h-100">
+        <h5 class="fw-bold text-dark mb-3">✍️ Tès & Egzamen</h5>
+        <hr class="mt-0">
+
+        {% if tes_lis %}
+          {% for tes in tes_lis %}
+            <div class="border-bottom pb-3 mb-3">
+              <h6 class="fw-bold text-dark mb-1">{{ tes.tit }}</h6>
+              {% if tes.description %}
+                <p class="small text-muted mb-2">{{ tes.description }}</p>
+              {% endif %}
+              
+              <small class="text-secondary d-block mb-2">⏱️ Duree: {{ tes.duree_minit }} minit</small>
+              
+              {% if tes.lyen_tes %}
+                <a href="{{ tes.lyen_tes }}" target="_blank" class="btn btn-sm btn-success w-100">
+                  Pase Tès la Kounya 🚀
+                </a>
+              {% endif %}
+            </div>
+          {% endfor %}
+        {% else %}
+          <p class="text-muted small">Pa gen tès ki disponib pou kounya.</p>
+        {% endif %}
+      </div>
+    </div>
+
+  </div>
+
+</div>
+{% endblock %}

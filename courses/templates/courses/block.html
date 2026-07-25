@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="ht">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aksè Bloke - Elite English Academy</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f6f8;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .card {
+            background: white;
+            padding: 35px;
+            border-radius: 12px;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+            text-align: center;
+            max-width: 420px;
+            width: 100%;
+        }
+        .icon {
+            font-size: 50px;
+            margin-bottom: 10px;
+        }
+        h2 { color: #c53030; margin-bottom: 10px; }
+        p { color: #4a5568; line-height: 1.5; font-size: 15px; margin-bottom: 25px; }
+        .btn-peman {
+            display: inline-block;
+            background-color: #d97706;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 6px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: background-color 0.2s;
+        }
+        .btn-peman:hover { background-color: #b45309; }
+        .btn-logout {
+            display: block;
+            margin-top: 15px;
+            color: #718096;
+            font-size: 13px;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+
+<div class="card">
+    <div class="icon">🔒</div>
+    <h2>Ou poko gen aksè!</h2>
+    <p>Ou bezwen peye oswa voye prèv peman ou an pou kont ou an ka debloke pou w swiv kou yo.</p>
+    
+    <a href="{% url 'peman' %}" class="btn-peman">Voye Prèv Peman Kounye a</a>
+    <a href="{% url 'dekonksyon' %}" class="btn-logout">Se pa ou menm? Dekonekte</a>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="ht">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kou Yo - Elite English Academy</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f6f8;
+            margin: 0;
+            padding: 0;
+        }
+        header {
+            background-color: #1a365d;
+            color: white;
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        header h1 { margin: 0; font-size: 20px; }
+        .user-info { display: flex; align-items: center; gap: 15px; }
+        .btn-logout {
+            background-color: #e53e3e;
+            color: white;
+            padding: 8px 14px;
+            border-radius: 6px;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: bold;
+        }
+        .btn-logout:hover { background-color: #c53030; }
+        .container { max-width: 800px; margin: 40px auto; padding: 0 20px; }
+        .nivo-card {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            border-left: 5px solid #d97706;
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>Elite English Academy</h1>
+    <div class="user-info">
+        <span>Byenveni, <strong>{{ request.user.first_name }}</strong>!</span>
+        <a href="{% url 'dekonksyon' %}" class="btn-logout">Dekonekte</a>
+    </div>
+</header>
+
+<div class="container">
+    <h2>Lis Nivo Kou Yo</h2>
+    
+    {% for nivo in nivo_yo %}
+        <div class="nivo-card">
+            <h3>{{ nivo.non }}</h3>
+            <p>{{ nivo.deskripsyon }}</p>
+        </div>
+    {% empty %}
+        <p>Poko gen nivo kou ki ajoute nan sistèm nan.</p>
+    {% endfor %}
+</div>
+{% for kou in kou_lis %}
+  <div class="col-md-4 mb-4">
+    <div class="card h-100 shadow-sm">
+      <div class="card-body">
+        <h5 class="card-title fw-bold">{{ kou.tit }}</h5>
+        <p class="card-text text-muted">{{ kou.description|truncatewords:15 }}</p>
+      </div>
+      
+      <div class="card-footer bg-transparent border-0 pb-3">
+        
+        <a href="{% url 'detay_kou' kou.id %}" class="btn btn-primary w-100 fw-bold">
+          Gade Kou Sa A
+        </a>
+      </div>
+    </div>
+  </div>
+{% endfor %}
+
+</body>
+</html>
