@@ -1,12 +1,14 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth import login, authenticate, logout
+from django.contrib.auth.models import User
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.mail import send_mail
 from django.conf import settings
 from django.shortcuts import render,  get_object_or_404
 from django.utils import timezone
-
+from datetime import timedelta
+from .models import UserProfile
 
 from .form import EnskripsyonForm
 from .models import Devwa, Dokiman, EnstriksyonPeman, NivoKou, AkseEtidyan, PrevPeman, Setifika, Tes, VerifikasyonEmail
@@ -15,37 +17,48 @@ from .models import LesonKou
 
 def enskripsyon(request):
     if request.method == 'POST':
-        form = EnskripsyonForm(request.POST)
-        if form.is_valid():
-            user = form.save()
-            
-            # 1. Kreye aksè etidyan (poko aktif - gen_akse = False)
-            AkseEtidyan.objects.create(etidyan=user, gen_akse=False)
-            
-            # 2. Jènere kòd verifikasyon 6 chif la
-            verif, created = VerifikasyonEmail.objects.get_or_create(user=user)
-            verif.jènere_kod()
-            
-            # 3. Voye imèl verifikasyon an bay etidyan an
-            suje = "Kòd Verifikasyon - Elite English Academy"
-            mesaj = (
-                f"Bonjou {user.first_name},\n\n"
-                f"Kòd verifikasyon imèl ou an se: {verif.kod}\n\n"
-                f"Tanpri rantre kòd sa a sou sit la pou konfime imèl ou an.\n"
-                f"Remak: Aksè ou nan kou yo ap aktivman lè w voye prèv peman an e ke admin lan valide l."
-            )
-            
-            try:
-                send_mail(suje, mesaj, settings.DEFAULT_FROM_EMAIL, [user.email])
-            except Exception as e:
-                messages.warning(request, "Nou pa t ka voye imèl la anrejistreman an fèt, tcheke konfigirasyon SMTP ou.")
+        username = request.POST.get('username')
+        password = request.POST.get('password')
+        whatsapp = request.POST.get('whatsapp')
+        level = request.POST.get('level')
 
-            # Sere ID itilizatè a nan session la pou paj verifikasyon an
-            request.session['user_id_pending'] = user.id
-            return redirect('verifye_kod')
-    else:
-        form = EnskripsyonForm()
-    return render(request, 'courses/enskripsyon.html', {'form': form})
+        if User.objects.filter(username=username).exists():
+            messages.error(request, "Non itilizatè sa a deja itilize. Tanpri chwazi yon lòt.")
+            return render(request, 'enskripsyon.html')
+
+        user = User.objects.create_user(username=username, password=password)
+        UserProfile.objects.create(user=user, whatsapp_number=whatsapp, level=level)
+
+        messages.success(request, "Enskripsyon an fèt ak siksè! Ou ka konekte kounye a.")
+        return redirect('login')
+
+    return render(request, 'enskripsyon.html')
+def user_login(request):
+    if request.method == 'POST':
+        username = request.POST.get('username')
+        password = request.POST.get('password')
+        
+        user = authenticate(request, username=username, password=password)
+        
+        if user is not None:
+            if not user.is_active:
+                messages.error(request, "Kont ou an dezaktive. Tanpri kontakte administratè a sou WhatsApp.")
+                return render(request, 'login.html')
+
+            profile = getattr(user, 'profile', None)
+            if profile:
+                if not profile.is_paid and timezone.now() > profile.created_at + timedelta(hours=24):
+                    user.is_active = False
+                    user.save()
+                    messages.error(request, "Peryòd gratis 24 èdtan ou an fini. Tanpri fè peman an pou kous la!")
+                    return render(request, 'login.html')
+
+            login(request, user)
+            return redirect('dashboard')
+        else:
+            messages.error(request, "Username oswa Password pa kòrèk.")
+            
+    return render(request, 'login.html')
 
 
 def verifye_kod(request):

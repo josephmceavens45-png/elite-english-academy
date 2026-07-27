@@ -1,123 +1,61 @@
-<!DOCTYPE html>
-<html lang="ht">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Enskripsyon - Elite English Academy</title>
-    <style>
-        body { 
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
-            background-color: #f4f6f8; 
-            display: flex; 
-            justify-content: center; 
-            align-items: center; 
-            height: 100vh; 
-            margin: 0; 
-        }
-        .card { 
-            background: white; 
-            padding: 35px; 
-            border-radius: 12px; 
-            box-shadow: 0 8px 16px rgba(0,0,0,0.1); 
-            width: 100%; 
-            max-width: 400px; 
-        }
-        h2 { 
-            text-align: center; 
-            color: #1a365d; 
-            margin-bottom: 5px; 
-            font-size: 24px;
-        }
-        p.subtitle {
-            text-align: center; 
-            color: #718096; 
-            margin-top: 0;
-            margin-bottom: 25px;
-            font-size: 14px;
-        }
-        .form-group { 
-            margin-bottom: 18px; 
-        }
-        label { 
-            display: block; 
-            margin-bottom: 6px; 
-            font-weight: 600; 
-            color: #4a5568; 
-            font-size: 14px;
-        }
-        input { 
-            width: 100%; 
-            padding: 12px; 
-            border: 1px solid #cbd5e0; 
-            border-radius: 6px; 
-            box-sizing: border-box; 
-            font-size: 14px;
-            outline: none;
-            transition: border-color 0.2s;
-        }
-        input:focus {
-            border-color: #3182ce;
-        }
-        button { 
-            width: 100%; 
-            background-color: #d97706; 
-            color: white; 
-            padding: 12px; 
-            border: none; 
-            border-radius: 6px; 
-            font-weight: bold; 
-            cursor: pointer; 
-            font-size: 16px; 
-            margin-top: 10px; 
-            transition: background-color 0.2s;
-        }
-        button:hover { 
-            background-color: #b45309; 
-        }
-        .error { 
-            color: #e53e3e; 
-            font-size: 13px; 
-            margin-top: 4px;
-            display: block;
-        }
-    </style>
-</head>
-<body>
+{% extends 'base.html' %}
 
-<div class="card">
-    <h2>Elite English Academy</h2>
-    <p class="subtitle">Enskri pou w kòmanse swiv kou yo</p>
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6 col-lg-5">
+            <div class="card card-custom p-4 p-md-5">
+                <div class="text-center mb-4">
+                    <h3 class="fw-bold text-dark">Elite English Academy</h3>
+                    <p class="text-muted">Kreye kont etidyan pa w la</p>
+                </div>
 
-    <form method="POST">
-        {% csrf_token %}
-        
-        {% if form.errors %}
-            <div class="error" style="margin-bottom: 15px; font-weight: bold;">
-                Tanpri verifye enfòmasyon yo reye nan fòm lan.
+                {% if messages %}
+                    {% for message in messages %}
+                        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                            {{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+
+                <form method="POST">
+                    {% csrf_token %}
+                    
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold"><i class="fa-solid fa-user me-2 text-primary"></i>Username</label>
+                        <input type="text" name="username" class="form-control" placeholder="Chwazi yon username" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold"><i class="fa-solid fa-lock me-2 text-primary"></i>Password</label>
+                        <input type="password" name="password" class="form-control" placeholder="••••••••" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold"><i class="fa-brands fa-whatsapp me-2 text-success"></i>Nimewo WhatsApp</label>
+                        <input type="text" name="whatsapp" class="form-control" placeholder="+509 3600 0000" required>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label fw-semibold"><i class="fa-solid fa-layer-group me-2 text-primary"></i>Nivo nan Angle</label>
+                        <select name="level" class="form-select" required>
+                            <option value="beginner">🟢 Beginner (Debitan)</option>
+                            <option value="intermediate">🟡 Intermediate (Mwayen)</option>
+                            <option value="advanced">🔴 Advanced (Avanse)</option>
+                        </select>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary-custom w-100 mb-3">
+                        Enskri Kounye a <i class="fa-solid fa-arrow-right ms-2"></i>
+                    </button>
+
+                    <p class="text-center text-muted mb-0">
+                        Ou gen yon kont deja? <a href="{% url 'login' %}" class="text-primary text-decoration-none fw-bold">Konekte</a>
+                    </p>
+                </form>
             </div>
-        {% endif %}
-
-        <div class="form-group">
-            <label>Prenon</label>
-            {{ form.first_name }}
         </div>
-
-        <div class="form-group">
-            <label>Non</label>
-            {{ form.last_name }}
-        </div>
-
-        <div class="form-group">
-            <label>Imel</label>
-            {{ form.email }}
-            {% if form.email.errors %}
-                <span class="error">{{ form.email.errors.0 }}</span>
-            {% endif %}
-        </div>
-
-        <button type="submit">Kreye Kont Mwen</button>
-    </form>
+    </div>
 </div>
-
-</body>
-</html>
+{% endblock %}

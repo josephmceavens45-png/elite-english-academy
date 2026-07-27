@@ -1,6 +1,8 @@
 from django.db import models
 from django.contrib.auth.models import User
 from django.conf import settings
+from django.utils import timezone
+from datetime import timedelta
 import random
 
 # 1. Nivo Kou yo (Eg: English Class Level 1 - A1)
@@ -154,7 +156,25 @@ class Setifika(models.Model):
     date_emisyon = models.DateField(auto_now_add=True)
 
     def __str__(self):
-        return f"Sètifika {self.eleun.username} - {self.kou.tit}"           
+        return f"Sètifika {self.eleun.username} - {self.kou.tit}"   
+class UserProfile(models.Model):
+    LEVEL_CHOICES = [
+        ('beginner', 'Beginner'),
+        ('intermediate', 'Intermediate'),
+        ('advanced', 'Advanced'),
+    ]
+
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
+    whatsapp_number = models.CharField(max_length=20)
+    level = models.CharField(max_length=20, choices=LEVEL_CHOICES, default='beginner')
+    created_at = models.DateTimeField(auto_now_add=True)
+    is_paid = models.BooleanField(default=False)
+
+    def is_within_24h(self):
+         return timezone.now() <= self.created_at + timedelta(hours=24)
+
+    def __str__(self):
+        return f"{self.user.username} - {self.whatsapp_number} ({self.get_level_display()})"                
 
 
 # Create your models here.

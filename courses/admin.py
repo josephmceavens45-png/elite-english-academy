@@ -1,9 +1,12 @@
 from django.contrib import admin
 from django.core.mail import send_mail
 from django.conf import settings
+from django.contrib.auth.models import User
+from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
+from .models import UserProfile
 
 
-from .models import Dokiman, EnstriksyonPeman, NivoKou, AkseEtidyan, PrevPeman, Tes, VerifikasyonEmail
+from .models import Dokiman, EnstriksyonPeman, NivoKou, AkseEtidyan, PrevPeman, Tes, UserProfile, VerifikasyonEmail
 from .models import LesonKou
 from .models import Devwa , Setifika
 admin.site.register(Setifika)
@@ -73,4 +76,37 @@ class DevwaAdmin(admin.ModelAdmin):
     )
 @admin.register(Tes)
 class TesAdmin(admin.ModelAdmin):
-    list_display = ('tit', 'duree_minit')   
+    list_display = ('tit', 'duree_minit')
+class UserProfileInline(admin.StackedInline):
+    model = UserProfile
+    can_delete = False
+
+class CustomUserAdmin(BaseUserAdmin):
+    inlines = (UserProfileInline,)
+    list_display = ('username', 'email', 'get_whatsapp', 'get_level', 'is_active', 'date_joined')
+    list_filter = ('is_active', 'profile__level', 'profile__is_paid')
+    actions = ['enable_users', 'disable_users']
+
+    def get_whatsapp(self, instance):
+        return instance.profile.whatsapp_number if hasattr(instance, 'profile') else 'N/A'
+    get_whatsapp.short_description = 'WhatsApp'
+
+    def get_level(self, instance):
+        return instance.profile.get_level_display() if hasattr(instance, 'profile') else 'N/A'
+    get_level.short_description = 'Nivo Angle'
+
+    # Bouton Aksyon pou Disable kont yo
+    @admin.action(description='Dezaktive kont itilizatè sa yo (Disable)')
+    def disable_users(self, request, queryset):
+        queryset.update(is_active=False)
+        self.message_user(request, "Kont ki te seleksyone yo vin dezaktive ak siksè.")
+
+    # Bouton Aksyon pou Enable kont yo
+    @admin.action(description='Aktive kont itilizatè sa yo (Enable)')
+    def enable_users(self, request, queryset):
+        queryset.update(is_active=True)
+        self.message_user(request, "Kont ki te seleksyone yo vin aktive ak siksè.")
+
+# Re-register User Admin
+admin.site.unregister(User)
+admin.site.register(User, CustomUserAdmin)      
