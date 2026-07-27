@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container py-4">
+    <!-- Header -->
+    <div class="card card-custom p-4 mb-4 d-flex flex-row justify-content-between align-items-center">
+        <div>
+            <h4 class="fw-bold mb-1">Bonswa, {{ user.username }}!</h4>
+            <p class="text-muted mb-0">Byenveni sou spasyalite kou ou yo</p>
+        </div>
+        <div>
+            <span class="badge-level">
+                Nivo: {{ user.profile.get_level_display }}
+            </span>
+        </div>
+    </div>
+
+    <!-- Alert 24h -->
+    {% if not user.profile.is_paid %}
+        <div class="alert alert-warning border-0 shadow-sm rounded-3 mb-4 d-flex align-items-center p-3">
+            <i class="fa-solid fa-clock fs-3 me-3 text-warning"></i>
+            <div>
+                <strong>Aksè Pwovizwa (24h Gratis):</strong> Ou gen aksè ak tout kou yo pandan 24 èdtan. Kontakte nou sou WhatsApp pou ranpli peman an anvan tan an fini.
+            </div>
+        </div>
+    {% endif %}
+
+    <!-- Kou yo -->
+    <h5 class="fw-bold mb-3">Kou ki disponib pou nivo {{ user.profile.get_level_display }} ou an:</h5>
+    <div class="row g-4">
+        <div class="col-md-4">
+            <div class="card card-custom h-100 p-3">
+                <div class="card-body">
+                    <span class="badge bg-light text-primary mb-2">Lesson 1</span>
+                    <h5 class="card-title fw-bold text-dark">English Grammar Basics</h5>
+                    <p class="card-text text-muted">Aprann fòme fraz yo ak bon tèm gramatikal yo nan lang angle a.</p>
+                    <a href="#" class="btn btn-primary-custom w-100">Kòmanse  <i class="fa-solid fa-play ms-1"></i></a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
