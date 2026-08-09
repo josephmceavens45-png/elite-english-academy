@@ -1,180 +1,106 @@
 from django.db import models
 from django.contrib.auth.models import User
-from django.conf import settings
 from django.utils import timezone
 from datetime import timedelta
-import random
 
-# 1. Nivo Kou yo (Eg: English Class Level 1 - A1)
+# 1. Modèl Profil Itilizatè (Jere WhatsApp ak aksè 24h gratis)
+class UserProfile(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
+    whatsapp_number = models.CharField(max_length=20, verbose_name="Nimewo WhatsApp")
+    level = models.CharField(max_length=10, blank=True, null=True, verbose_name="Nivo")
+    is_paid = models.BooleanField(default=False, verbose_name="Èske l peye?")
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name="Dat Enskripsyon")
+
+    def __str__(self):
+        return f"{self.user.username} - {self.whatsapp_number}"
+
+    @property
+    def gen_akse(self):
+        if self.is_paid:
+            return True
+        limit_24h = self.created_at + timedelta(hours=24)
+        return timezone.now() <= limit_24h
+
+
+# 2. Modèl Nivo Kou (Level A1 Debutant, A2, etc.)
 class NivoKou(models.Model):
-    tit = models.CharField(max_length=200, verbose_name="Tit Nivo a")
-    deskripsyon = models.TextField(blank=True, verbose_name="Deskripsyon")
+    nom = models.CharField(max_length=100, verbose_name="Non Nivo a")
+    deskripsyon = models.TextField(blank=True, null=True, verbose_name="Deskripsyon Nivo a")
+
+    def __str__(self):
+        return self.nom
 
     class Meta:
         verbose_name = "Nivo Kou"
         verbose_name_plural = "Nivo Kou yo"
+class Profil(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profil')
+    telephone = models.CharField(max_length=20)
 
     def __str__(self):
-        return self.tit
+        return f"{self.user.username} - {self.telephone}"
 
 
-class Kou(models.Model):
-    nivo = models.ForeignKey(NivoKou, on_delete=models.CASCADE, related_name='kours', verbose_name="Nivo", blank=True, null=True)
-    tit = models.CharField(max_length=255, verbose_name="Tit Kou a")
-    deskripsyon = models.TextField(blank=True, verbose_name="Deskripsyon")
-
-    class Meta:
-        verbose_name = "Kou"
-        verbose_name_plural = "Kou yo"
-
-    def __str__(self):
-        return self.tit
-
-
-# 2. Leson yo (Ka yon Videyo oswa yon Odyo)
+# 3. Modèl Leson Kou (Gen kontni tèks, dokiman, videyo ak odyo ansanm)
 class LesonKou(models.Model):
-    TIP_KONTNI = [
-        ('videyo', 'Videyo (Vimeo)'),
-        ('odyo', 'Odyo (Audio/Listening)'),
-    ]
-
     nivo = models.ForeignKey(NivoKou, on_delete=models.CASCADE, related_name='leson_yo', verbose_name="Nivo")
-    tit = models.CharField(max_length=255, verbose_name="Tit Leson an")
-    tip = models.CharField(max_length=10, choices=TIP_KONTNI, default='videyo', verbose_name="Tip Kontni")
-    description = models.TextField(blank=True, null=True)
-    
-    fichye_odyo = models.FileField(upload_to='odyo_leson/', blank=True, null=True, help_text="Upload yon fichye odyo (.mp3, .wav)")
-    fichye_videyo = models.FileField(upload_to='videyo_leson/', blank=True, null=True, help_text="Upload yon fichye videyo (.mp4)")
-    lyen_videyo = models.URLField(blank=True, null=True, help_text="Oswa kole yon lyen videyo (YouTube, Vimeo, Google Drive, elatriye)")
-    dire = models.CharField(max_length=50, verbose_name="Dire a (Eg: 01:50:08 oswa 15:30)")
+    titre = models.CharField(max_length=200, verbose_name="Tit Leson an")
+    kontni = models.TextField(verbose_name="Eksplikasyon Leson an", blank=True, null=True)
 
-    class Meta:
-        verbose_name = "Leson"
-        verbose_name_plural = "Leson yo"
+    vimeo_url = models.CharField(max_length=500, blank=True, null=True, verbose_name="Lyen  Vimeo")
+    zoom_url = models.URLField(max_length=500, blank=True, null=True, verbose_name="Lyen Anrejistreman Zoom")
 
-    def __str__(self):
-        tip_non = "🎥" if self.tip == 'videyo' else "🎵"
-        return f"{tip_non} {self.nivo.tit} - {self.tit}"
+    # Chan pou Fichye Medya ak Dokiman anndan leson an
+    fichye_dokiman = models.FileField(upload_to='leson_dokiman/', blank=True, null=True, verbose_name="Dokiman (PDF/Word)")
+    fichye_videyo = models.FileField(upload_to='leson_videyo/', blank=True, null=True, verbose_name="Videyo Leson an")
+    fichye_odyo = models.FileField(upload_to='leson_odyo/', blank=True, null=True, verbose_name="Odyo Leson an")
 
-
-# 3. Sistèm kontwòl manyèl pou aktive/dezaktive aksè elèv yo
-class AkseEtidyan(models.Model):
-    etidyan = models.OneToOneField(User, on_delete=models.CASCADE, verbose_name="Elèv", related_name="akse")
-    gen_akse = models.BooleanField(default=False, verbose_name="Èske li gen aksè nan platfòm lan?")
-    not_admin = models.TextField(blank=True, null=True, verbose_name="Nòt sou elèv sa a")
-
-    class Meta:
-        verbose_name = "Aksè Elèv"
-        verbose_name_plural = "Aksè Elèv yo"
-
-    def __str__(self):
-        estati = "AKSIF" if self.gen_akse else "BLOKE"
-        return f"{self.etidyan.email} - [{estati}]"
-
-
-class PrevPeman(models.Model):
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    metod_peman = models.CharField(max_length=50, choices=[
-        ('MonCash', 'MonCash'),
-        ('Natcash', 'Natcash'),
-        ('Zelle', 'Zelle'),
-        ('Lòt', 'Lòt')
-    ])
-    nimewo_tranzaksyon = models.CharField(max_length=100, blank=True, null=True)
-    foto_resi = models.ImageField(upload_to='resi_peman/', blank=True, null=True)
-    date_voye = models.DateTimeField(auto_now_add=True)
-    valide = models.BooleanField(default=False)
-
-    def __str__(self):
-        return f"Peman {self.user.username} - {self.metod_peman}"
-
-
-class VerifikasyonEmail(models.Model):
-    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    kod = models.CharField(max_length=6)
-    estati_verifye = models.BooleanField(default=False)
-
-    def jènere_kod(self):
-        self.kod = str(random.randint(100000, 999999))
-        self.save()
-
-class EnstriksyonPeman(models.Model):
-    nimewo_moncash = models.CharField(max_length=50, blank=True, null=True, help_text="Egzanp: +509 3400-0000")
-    nimewo_natcash = models.CharField(max_length=50, blank=True, null=True, help_text="Egzanp: +509 4300-0000")
-    enfomasyon_bank = models.TextField(blank=True, null=True, help_text="Egzanp: Unibank: 123-4567-8901 (Non sou kont lan)")
-    note_enpotan = models.TextField(blank=True, null=True, help_text="Ti enstriksyon pou etidyan an (egzanp: Antre nimewo tranzaksyon an presizeman)")
-
-    class Meta:
-        verbose_name = "Enstriksyon Peman"
-        verbose_name_plural = "Enstriksyon Peman yo"
-
-    def __str__(self):
-        return "Konfigirasyon Nimewo Peman yo"
-class Dokiman(models.Model):
-    tit = models.CharField(max_length=200)
-    fichye = models.FileField(upload_to='dokiman_kou/')
-    description = models.TextField(blank=True, null=True)
-    date_kreye = models.DateTimeField(auto_now_add=True)
-
-    class Meta:
-        verbose_name_plural = "Dokiman yo"
-
-    def __str__(self):
-        return self.tit
-class Devwa(models.Model):
-    tit = models.CharField(max_length=200)
-    konsiy = models.TextField(help_text="Esplike sa eleman yo dwe fè nan devwa sa a")
-    
-    # Opsyon pou diferan kalite kontni pwofesè a ka met nan devwa a
-    fichye_dokiman = models.FileField(upload_to='devwa/dokiman/', blank=True, null=True, help_text="Si se yon PDF/Word")
-    fichye_odyo = models.FileField(upload_to='devwa/odyo/', blank=True, null=True, help_text="Si se yon odyo pou yo koute (.mp3)")
-    lyen_videyo = models.URLField(blank=True, null=True, help_text="Lyen videyo (YouTube, Drive, etc.)")
-    fichye_videyo = models.FileField(upload_to='devwa/videyo/', blank=True, null=True, help_text="Si se yon fichye videyo monte (.mp4)")
-    
-    date_limit = models.DateTimeField(help_text="Dat ak lè devwa sa a dwe remèt")
-
-    class Meta:
-        verbose_name_plural = "Devwa yo"
-
-    def __str__(self):
-        return self.tit
-class Tes(models.Model):
-    tit = models.CharField(max_length=200)
-    description = models.TextField(blank=True, null=True)
-    duree_minit = models.IntegerField(default=30, help_text="Temps tès la ap dure (an minit)")
-    lyen_tes = models.URLField(blank=True, null=True, help_text="Lyen tès la (Google Forms / Microsoft Forms / Platfòm)")
-
-    class Meta:
-        verbose_name_plural = "Tès ak Egzamen yo"
-
-    def __str__(self):
-        return self.tit     
-class Setifika(models.Model):
-    eleun = models.ForeignKey(User, on_delete=models.CASCADE)
-    kou = models.ForeignKey(Kou, on_delete=models.CASCADE)
-    fichye_pdf = models.FileField(upload_to='setifika_pdf/')
-    date_emisyon = models.DateField(auto_now_add=True)
-
-    def __str__(self):
-        return f"Sètifika {self.eleun.username} - {self.kou.tit}"   
-class UserProfile(models.Model):
-    LEVEL_CHOICES = [
-        ('beginner', 'Beginner'),
-        ('intermediate', 'Intermediate'),
-        ('advanced', 'Advanced'),
-    ]
-
-    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
-    whatsapp_number = models.CharField(max_length=20)
-    level = models.CharField(max_length=20, choices=LEVEL_CHOICES, default='beginner')
     created_at = models.DateTimeField(auto_now_add=True)
-    is_paid = models.BooleanField(default=False)
-
-    def is_within_24h(self):
-         return timezone.now() <= self.created_at + timedelta(hours=24)
 
     def __str__(self):
-        return f"{self.user.username} - {self.whatsapp_number} ({self.get_level_display()})"                
+        return f"{self.nivo.nom} - {self.titre}"
+
+    class Meta:
+        verbose_name = "Leson Kou"
+        verbose_name_plural = "Leson Kou yo"
 
 
-# Create your models here.
+
+class Devwa(models.Model):
+    leson = models.ForeignKey('LesonKou', on_delete=models.CASCADE, related_name='devwa_yo', null=True, blank=True)
+    titre = models.CharField(max_length=200)
+    deskripsyon = models.TextField(blank=True, null=True)
+    date_limite = models.DateTimeField()  # Dat ak lè limit devwa a
+
+    fichye_konsiy = models.FileField(upload_to='devwa_konsiy/', blank=True, null=True, verbose_name="Fichye PDF Libellé Devwa")
+
+
+
+    def est_expire(self):
+        # Tcheke si dat limit la depase kounye a
+        return timezone.now() > self.date_limite
+
+    def __str__(self):
+        return self.titre
+
+
+class SoumisyonDevwa(models.Model):
+    devwa = models.ForeignKey(Devwa, on_delete=models.CASCADE, related_name='soumisyon_yo')
+    etidyan = models.ForeignKey(User, on_delete=models.CASCADE)
+    fichye_or_repons = models.TextField("Repons/Lyen Devwa")
+    date_soumisyon = models.DateTimeField(auto_now_add=True)
+    fichye_repons = models.FileField(upload_to='devwa_repons/', blank=True, null=True, verbose_name="Fichye Devwa Etidyan")
+    fichye_or_repons = models.TextField("Repons Tèks", blank=True, null=True)
+    note = models.IntegerField("Nòt /100", null=True, blank=True)  # Nòt pwofesè a ap mete
+    komanter_pwofese = models.TextField("Kòmantè Pwofesè", null=True, blank=True)
+
+    def __str__(self):
+        return f"{self.etidyan.username} - {self.devwa.titre}"
+
+
+# 5. Modèl Tès / Exam
+class Tes(models.Model):
+    titre = models.CharField(max_length=200)
+
+    def __str__(self):
+        return self.titre
