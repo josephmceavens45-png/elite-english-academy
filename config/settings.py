@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-m_j1+c3zbs3@kj9#w!4s+6m(m(y+@dc$07c6k72sd9pj4+m3_b
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['mceavensbertinfjos385.pythonanywhere.com', 'localhost', '127.0.0.1']
+ALLOWED_HOSTS = ['eliteenglishacademy-mceavensbertinfjos385.pythonanywhere.com','mceavensbertinfjos385.pythonanywhere.com', 'localhost', '127.0.0.1']
 
 
 # Application definition
@@ -55,7 +55,7 @@ ROOT_URLCONF = 'config.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [BASE_DIR / 'templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -116,20 +116,42 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
 STATIC_URL = 'static/'
+STATIC_ROOT = BASE_DIR / 'staticfiles'
+
+# Si w gen yon dosye 'static' nan rasin pwojè a kote ou mete logo.jpg an:
+STATICFILES_DIRS = [
+    BASE_DIR / 'static',
+]
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# Konfigirasyon voye imèl ak Gmail
+# Konfigirasyon Imèl ak Gmail
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
-EMAIL_HOST_USER = 'votre_email@gmail.com'  # Mete adrès Gmail akademi an la a
-EMAIL_HOST_PASSWORD = 'votre_app_password'  # Mot de passe d'application Gmail lan
-DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
+EMAIL_HOST_USER = 'josephmceavens45@gmail.com'  # <--- Antre vré adrès Gmail ou an la
+EMAIL_HOST_PASSWORD = 'dszcctsqijiozhwa'  # <--- Antre ti kòd 16 karaktè ou sot kreye a la (sans espas yo si w vle)
+DEFAULT_FROM_EMAIL = 'Elite English Academy <josephmceavens45@gmail.com>'
+
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
+
+CSRF_TRUSTED_ORIGINS = [
+    'https://eliteenglishacademy-mceavensbertinfjos385.pythonanywhere.com',
+    'https://*.pythonanywhere.com',
+]
+# Konfigirasyon Sekirite HTTPS ak CSRF
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+CSRF_COOKIE_SECURE = True
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_HTTPONLY = False
+
+# Permèt Django resevwa fichye videyo ki rive jiska 1 GB
+DATA_UPLOAD_MAX_MEMORY_SIZE = 1073741824  # 1 GB nan bytes
+FILE_UPLOAD_MAX_MEMORY_SIZE = 1073741824
+

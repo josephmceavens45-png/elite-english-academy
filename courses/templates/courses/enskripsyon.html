@@ -1,61 +1,103 @@
-{% extends 'base.html' %}
+{% extends 'courses/base.html' %}
+{% load static %}
 
 {% block content %}
-<div class="container py-5">
-    <div class="row justify-content-center">
-        <div class="col-md-6 col-lg-5">
-            <div class="card card-custom p-4 p-md-5">
-                <div class="text-center mb-4">
-                    <h3 class="fw-bold text-dark">Elite English Academy</h3>
-                    <p class="text-muted">Kreye kont etidyan pa w la</p>
-                </div>
+<div class="container my-5">
+  <div class="row justify-content-center">
+    <div class="col-md-6 col-lg-5">
+      <div class="card shadow-sm border-0 rounded-3">
+        <div class="card-body p-4">
+          <div class="text-center mb-3">
+            <img src="{% static 'images/english.jpg' %}" alt="Logo Elite English Academy" class="img-fluid" style="max-height: 90px;">
+          </div>
 
-                {% if messages %}
-                    {% for message in messages %}
-                        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
-                            {{ message }}
-                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                        </div>
-                    {% endfor %}
-                {% endif %}
+          <h3 class="card-title text-center fw-bold mb-3">Kreyasyon yon kont Elite English Academy</h3>
+          <p class="text-center text-muted small mb-4">
+            Enskri kounye a pou w jwenn <strong>24 èdtan aksè gratis</strong> nan tout leson yo!
+          </p>
 
-                <form method="POST">
-                    {% csrf_token %}
-                    
-                    <div class="mb-3">
-                        <label class="form-label fw-semibold"><i class="fa-solid fa-user me-2 text-primary"></i>Username</label>
-                        <input type="text" name="username" class="form-control" placeholder="Chwazi yon username" required>
-                    </div>
+          <form method="POST" action="{% url 'enskripsyon' %}">
+            {% csrf_token %}
 
-                    <div class="mb-3">
-                        <label class="form-label fw-semibold"><i class="fa-solid fa-lock me-2 text-primary"></i>Password</label>
-                        <input type="password" name="password" class="form-control" placeholder="••••••••" required>
-                    </div>
-
-                    <div class="mb-3">
-                        <label class="form-label fw-semibold"><i class="fa-brands fa-whatsapp me-2 text-success"></i>Nimewo WhatsApp</label>
-                        <input type="text" name="whatsapp" class="form-control" placeholder="+509 3600 0000" required>
-                    </div>
-
-                    <div class="mb-4">
-                        <label class="form-label fw-semibold"><i class="fa-solid fa-layer-group me-2 text-primary"></i>Nivo nan Angle</label>
-                        <select name="level" class="form-select" required>
-                            <option value="beginner">🟢 Beginner (Debitan)</option>
-                            <option value="intermediate">🟡 Intermediate (Mwayen)</option>
-                            <option value="advanced">🔴 Advanced (Avanse)</option>
-                        </select>
-                    </div>
-
-                    <button type="submit" class="btn btn-primary-custom w-100 mb-3">
-                        Enskri Kounye a <i class="fa-solid fa-arrow-right ms-2"></i>
-                    </button>
-
-                    <p class="text-center text-muted mb-0">
-                        Ou gen yon kont deja? <a href="{% url 'login' %}" class="text-primary text-decoration-none fw-bold">Konekte</a>
-                    </p>
-                </form>
+            <!-- Username / Non itilizatè -->
+            <div class="mb-3">
+              <label for="username" class="form-label fw-semibold">Non Itilizatè (Username)</label>
+              <input type="text" name="username" id="username" class="form-control" placeholder="Egz: jean_dupont" required>
             </div>
+
+            <!-- Email (Opsyonèl) -->
+            <div class="mb-3">
+              <label for="email" class="form-label fw-semibold">Adrès Imèl (Opsyonèl)</label>
+              <input type="email" name="email" id="email" class="form-control" placeholder="egzanp@gmail.com">
+            </div>
+
+            <!-- Nimewo WhatsApp entènasyonal -->
+            <div class="mb-3">
+              <label for="whatsapp_number" class="form-label fw-semibold">Nimewo WhatsApp</label>
+              <input
+                type="tel"
+                name="whatsapp_number"
+                id="whatsapp_number"
+                class="form-control"
+                placeholder="Egz: +1 514 123 4567 oswa +33 6 12 34 56 78"
+                required
+              >
+              <div class="form-text text-muted small mt-1">
+                🌐 Met kòd peyi kote w ye a anvan nimewo a (Egzanp: <strong>+1</strong> pou Kanada/USA, <strong>+33</strong> pou Lafrans, <strong>+509</strong> pou Ayiti).
+              </div>
+            </div>
+
+            <!-- Modpas / Password -->
+            <div class="mb-3">
+              <label for="password" class="form-label fw-semibold">Modpas</label>
+              <input type="password" name="password" id="password" class="form-control" placeholder="••••••••" required>
+            </div>
+
+            <!-- Konfime Modpas -->
+            <div class="mb-2">
+              <label for="confirm_password" class="form-label fw-semibold">Konfime Modpas la</label>
+              <input type="password" name="confirm_password" id="confirm_password" class="form-control" placeholder="••••••••" required>
+            </div>
+
+            <!-- Opsyon Show/Hide Password -->
+            <div class="form-check mb-4">
+              <input class="form-check-input" type="checkbox" id="togglePassword" onclick="showHidePassword()">
+              <label class="form-check-label text-muted small" for="togglePassword">
+                Afiche modpas yo (Show Password)
+              </label>
+            </div>
+
+            <!-- Bouton Enskripsyon -->
+            <div class="d-grid">
+              <button type="submit" class="btn btn-primary btn-lg">Enskri pou 24h Gratis</button>
+            </div>
+          </form>
+
+          <hr class="my-4">
+
+          <p class="text-center mb-0 small">
+            Ou gen yon kont deja? <a href="{% url 'login' %}" class="text-decoration-none fw-bold">Konekte la a</a>
+          </p>
+
         </div>
+      </div>
     </div>
+  </div>
 </div>
+
+<!-- Ti Script JavaScript pou Show Password la -->
+<script>
+  function showHidePassword() {
+    const passInput = document.getElementById("password");
+    const confirmPassInput = document.getElementById("confirm_password");
+
+    if (passInput.type === "password") {
+      passInput.type = "text";
+      confirmPassInput.type = "text";
+    } else {
+      passInput.type = "password";
+      confirmPassInput.type = "password";
+    }
+  }
+</script>
 {% endblock %}

@@ -1,87 +1,230 @@
-<!DOCTYPE html>
-<html lang="ht">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kou Yo - Elite English Academy</title>
-    <style>
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f4f6f8;
-            margin: 0;
-            padding: 0;
-        }
-        header {
-            background-color: #1a365d;
-            color: white;
-            padding: 15px 30px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-        header h1 { margin: 0; font-size: 20px; }
-        .user-info { display: flex; align-items: center; gap: 15px; }
-        .btn-logout {
-            background-color: #e53e3e;
-            color: white;
-            padding: 8px 14px;
-            border-radius: 6px;
-            text-decoration: none;
-            font-size: 14px;
-            font-weight: bold;
-        }
-        .btn-logout:hover { background-color: #c53030; }
-        .container { max-width: 800px; margin: 40px auto; padding: 0 20px; }
-        .nivo-card {
-            background: white;
-            padding: 20px;
-            border-radius: 8px;
-            margin-bottom: 15px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-            border-left: 5px solid #d97706;
-        }
-    </style>
-</head>
-<body>
+{% extends 'courses/base.html' %}
 
-<header>
-    <h1>Elite English Academy</h1>
-    <div class="user-info">
-        <span>Byenveni, <strong>{{ request.user.first_name }}</strong>!</span>
-        <a href="{% url 'dekonksyon' %}" class="btn-logout">Dekonekte</a>
-    </div>
-</header>
-
-<div class="container">
-    <h2>Lis Nivo Kou Yo</h2>
-    
-    {% for nivo in nivo_yo %}
-        <div class="nivo-card">
-            <h3>{{ nivo.non }}</h3>
-            <p>{{ nivo.deskripsyon }}</p>
-        </div>
-    {% empty %}
-        <p>Poko gen nivo kou ki ajoute nan sistèm nan.</p>
-    {% endfor %}
-</div>
-{% for kou in kou_lis %}
-  <div class="col-md-4 mb-4">
-    <div class="card h-100 shadow-sm">
-      <div class="card-body">
-        <h5 class="card-title fw-bold">{{ kou.tit }}</h5>
-        <p class="card-text text-muted">{{ kou.description|truncatewords:15 }}</p>
-      </div>
-      
-      <div class="card-footer bg-transparent border-0 pb-3">
-        
-        <a href="{% url 'detay_kou' kou.id %}" class="btn btn-primary w-100 fw-bold">
-          Gade Kou Sa A
-        </a>
-      </div>
-    </div>
+{% block content %}
+<div class="container my-4">
+  <div class="text-center mb-4">
+    <h2 class="fw-bold">📚 Klas ak Leson yo</h2>
+    <p class="text-muted">Klike sou yon nivo ak yon leson pou w wè kontni an, dokiman yo ak devwa yo.</p>
   </div>
-{% endfor %}
 
-</body>
-</html>
+  {% if nivo_yo %}
+    <div class="accordion" id="accordionNivo">
+      {% for nivo in nivo_yo %}
+        <div class="accordion-item mb-3 shadow-sm border rounded">
+          <h2 class="accordion-header" id="headingNivo{{ nivo.id }}">
+            <button class="accordion-button collapsed fw-bold fs-5 bg-light text-primary" type="button" data-bs-toggle="collapse" data-bs-target="#collapseNivo{{ nivo.id }}" aria-expanded="false" aria-controls="collapseNivo{{ nivo.id }}">
+              🎯 {{ nivo.nom }}
+            </button>
+          </h2>
+
+          <div id="collapseNivo{{ nivo.id }}" class="accordion-collapse collapse" aria-labelledby="headingNivo{{ nivo.id }}" data-bs-parent="#accordionNivo">
+            <div class="accordion-body">
+
+              {% if nivo.leson_yo.all %}
+                <div class="accordion accordion-flush" id="accordionLeson{{ nivo.id }}">
+                  {% for leson in nivo.leson_yo.all %}
+                    <div class="accordion-item border-bottom">
+                      <h3 class="accordion-header" id="headingLeson{{ leson.id }}">
+                        <button class="accordion-button collapsed fw-semibold text-dark" type="button" data-bs-toggle="collapse" data-bs-target="#collapseLeson{{ leson.id }}" aria-expanded="false" aria-controls="collapseLeson{{ leson.id }}">
+                          📖 {{ leson.titre }}
+                        </button>
+                      </h3>
+
+                      <div id="collapseLeson{{ leson.id }}" class="accordion-collapse collapse" aria-labelledby="headingLeson{{ leson.id }}" data-bs-parent="#accordionLeson{{ nivo.id }}">
+                        <div class="accordion-body bg-white p-3">
+
+                          <!-- 1. VIDEYO LYEN (Vimeo / Embed) -->
+                          {% if leson.vimeo_url %}
+                            <div class="mb-4">
+                              <h5 class="text-secondary border-bottom pb-2">🎥 Videyo Leson an (Lyen)</h5>
+                              <div class="ratio ratio-16x9 rounded overflow-hidden shadow-sm">
+                                <iframe src="{{ leson.vimeo_url }}" frameborder="0" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>
+                              </div>
+                            </div>
+                          {% endif %}
+
+                          <!-- 2. ANREJISTREMAN ZOOM -->
+                          {% if leson.zoom_url %}
+                            <div class="mb-4">
+                              <h5 class="text-secondary border-bottom pb-2">💻 Anrejistreman Klas Zoom</h5>
+                              <p class="text-muted small">Klike sou bouton anba a pou w gade redifizyon Zoom lan sou yon lòt tab.</p>
+                              <a href="{{ leson.zoom_url }}" class="btn btn-outline-success fw-bold" target="_blank">
+                                🔗 Gade Anrejistreman Zoom an
+                              </a>
+                            </div>
+                          {% endif %}
+
+                          <!-- 3. FICHYE VIDEYO SÈVÈ -->
+                          {% if leson.fichye_videyo %}
+                            <div class="mb-4">
+                              <h5 class="text-secondary border-bottom pb-2">🎥 Fichye Videyo Leson an</h5>
+                              <div class="ratio ratio-16x9 rounded overflow-hidden shadow-sm">
+                                <video controls width="100%">
+                                  <source src="{{ leson.fichye_videyo.url }}" type="video/mp4">
+                                </video>
+                              </div>
+                            </div>
+                          {% endif %}
+
+                          <!-- 4. ODYO LESON AN -->
+                          {% if leson.fichye_odyo %}
+                            <div class="mb-4">
+                              <h5 class="text-secondary border-bottom pb-2">🎧 Odyo Leson an</h5>
+                              <audio controls class="w-100">
+                                <source src="{{ leson.fichye_odyo.url }}" type="audio/mpeg">
+                              </audio>
+                            </div>
+                          {% endif %}
+
+                          <!-- 5. EKSPLIKASYON / KONTNI -->
+                          {% if leson.kontni %}
+                            <div class="mb-4">
+                              <h5 class="text-secondary border-bottom pb-2">Eksplikasyon Leson an</h5>
+                              <div class="lh-base">{{ leson.kontni|linebreaks }}</div>
+                            </div>
+                          {% endif %}
+
+                          <!-- 6. DOKIMAN -->
+                          {% if leson.fichye_dokiman %}
+                            <div class="mb-4">
+                              <h5 class="text-secondary border-bottom pb-2">📄 Dokiman ak Fichye</h5>
+                              <a href="{{ leson.fichye_dokiman.url }}" class="btn btn-outline-primary" target="_blank" download>
+                                📌 Telechaje Dokiman Leson an (PDF/Word)
+                              </a>
+                            </div>
+                          {% endif %}
+
+                          <!-- 7. SEKSYON DEVWA YO -->
+                          <div class="mb-4">
+                            <h5 class="text-secondary border-bottom pb-2">📝 Devwa</h5>
+                            {% if leson.devwa_yo.all %}
+                              {% for devwa in leson.devwa_yo.all %}
+                                <div class="card border mb-3 shadow-sm">
+                                  <div class="card-body">
+                                    <h5 class="fw-bold text-primary">{{ devwa.titre }}</h5>
+                                    {% if devwa.deskripsyon %}
+                                      <p class="text-muted mb-2">{{ devwa.deskripsyon }}</p>
+                                    {% endif %}
+
+                                    <!-- PDF KONSITY DEVWA A (Pwofesè a mete) -->
+                                    {% if devwa.fichye_konsiy %}
+                                      <div class="mb-3 p-2 bg-light rounded border d-flex align-items-center">
+                                        <span class="fs-4 me-2">📄</span>
+                                        <div>
+                                          <strong>Libellé du devoir (PDF):</strong><br>
+                                          <a href="{{ devwa.fichye_konsiy.url }}" class="btn btn-sm btn-outline-danger mt-1" target="_blank" download>
+                                            📥 Telechaje PDF Konsiy la
+                                          </a>
+                                        </div>
+                                      </div>
+                                    {% endif %}
+
+                                    {% if devwa.date_limite %}
+                                      <div class="alert alert-warning py-2 small mb-3">
+                                        ⏰ <strong>Dat ak Lè Limit:</strong> {{ devwa.date_limite|date:"d F Y à H:i" }}
+                                      </div>
+                                    {% endif %}
+
+                                    <!-- TAB STATUT DE REMISE -->
+                                    <div class="table-responsive mb-3">
+                                      <table class="table table-bordered align-middle small mb-0">
+                                        <tbody>
+                                          <tr>
+                                            <th class="bg-light text-secondary" style="width: 40%;">Statut des travaux remis</th>
+                                            <td>
+                                              {% for s in devwa.soumisyon_yo.all %}
+                                                {% if s.etidyan == user %}
+                                                  <span class="badge bg-success fs-6 px-2 py-1">Remis pour évaluation</span>
+                                                {% endif %}
+                                              {% empty %}
+                                                <span class="badge bg-secondary fs-6 px-2 py-1">Pas de tentative</span>
+                                              {% endfor %}
+                                            </td>
+                                          </tr>
+                                          <tr>
+                                            <th class="bg-light text-secondary">Fichier remis</th>
+                                            <td>
+                                              {% for s in devwa.soumisyon_yo.all %}
+                                                {% if s.etidyan == user and s.fichye_repons %}
+                                                  <a href="{{ s.fichye_repons.url }}" target="_blank" class="text-primary fw-bold">
+                                                    📎 {{ s.fichye_repons.name }}
+                                                  </a>
+                                                {% endif %}
+                                              {% empty %}
+                                                <span class="text-muted">Poko gen fichye ki voye</span>
+                                              {% endfor %}
+                                            </td>
+                                          </tr>
+                                          <tr>
+                                            <th class="bg-light text-secondary">Statut de l'évaluation</th>
+                                            <td>
+                                              {% for s in devwa.soumisyon_yo.all %}
+                                                {% if s.etidyan == user %}
+                                                  {% if s.note is not None %}
+                                                    <span class="badge bg-info text-dark fs-6">{{ s.note }} / 100</span>
+                                                    {% if s.komanter_pwofese %}
+                                                      <p class="mb-0 mt-1 text-muted small"><strong>Kòmantè:</strong> {{ s.komanter_pwofese }}</p>
+                                                    {% endif %}
+                                                  {% else %}
+                                                    <span class="text-muted">Non évalué</span>
+                                                  {% endif %}
+                                                {% endif %}
+                                              {% empty %}
+                                                <span class="text-muted">Non évalué</span>
+                                              {% endfor %}
+                                            </td>
+                                          </tr>
+                                        </tbody>
+                                      </table>
+                                    </div>
+
+                                    <!-- FORMULÈ POU ELÈV LAN SELEKSYONE EPI UPLOAD DEVWA L -->
+                                    {% if not devwa.est_expire %}
+                                      <form method="POST" action="{% url 'soumet_devwa' devwa.id %}" enctype="multipart/form-data" class="bg-light p-3 rounded border">
+                                        {% csrf_token %}
+                                        <div class="mb-3">
+                                          <label class="form-label fw-bold small text-dark">
+                                            📤 Seleksyone devwa w la sou aparèy ou an (PDF, Word, Imaj):
+                                          </label>
+                                          <input type="file" name="fichye_repons" class="form-control" accept=".pdf,.doc,.docx,.jpg,.png,.jpeg" required>
+                                        </div>
+                                        
+                                        <button type="submit" class="btn btn-warning fw-bold">
+                                          💾 Enregistrer les modifications
+                                        </button>
+                                      </form>
+                                    {% else %}
+                                      <div class="alert alert-danger py-2 mb-0 small fw-bold">
+                                        🚫 Dat limit la depase, ou pa ka soumèt devwa sa a anko.
+                                      </div>
+                                    {% endif %}
+
+                                  </div>
+                                </div>
+                              {% endfor %}
+                            {% else %}
+                              <p class="text-muted small mb-0">Pa gen devwa pou leson sa a.</p>
+                            {% endif %}
+                          </div>
+
+                        </div>
+                      </div>
+                    </div>
+                  {% endfor %}
+                </div>
+              {% else %}
+                <p class="text-muted p-2 mb-0">Poko gen leson ki ajoute nan nivo sa a.</p>
+              {% endif %}
+
+            </div>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <div class="alert alert-info text-center" role="alert">
+      Poko gen nivo oswa klas ki disponib pou kounye a.
+    </div>
+  {% endif %}
+</div>
+{% endblock %}
