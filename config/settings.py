@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-m_j1+c3zbs3@kj9#w!4s+6m(m(y+@dc$07c6k72sd9pj4+m3_b
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['eliteenglishacademy-mceavensbertinfjos385.pythonanywhere.com','mceavensbertinfjos385.pythonanywhere.com', 'localhost', '127.0.0.1']
+ALLOWED_HOSTS = ['elite-english-academy-1.onrender.com', 'localhost', '127.0.0.1']
 
 
 # Application definition
@@ -123,7 +123,6 @@ STATIC_ROOT = BASE_DIR / 'staticfiles'
 STATICFILES_DIRS = [
     BASE_DIR / 'static',
 ]
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
