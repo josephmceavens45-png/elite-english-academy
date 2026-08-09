@@ -1,13 +1,15 @@
 from django.urls import path
 from . import views
+from django.conf import settings
+from django.conf.urls.static import static
 
 urlpatterns = [
     path('enskripsyon/', views.enskripsyon, name='enskripsyon'),
-    path('verifye-kod/', views.verifye_kod, name='verifye_kod'),
-    path('koneksyon/', views.koneksyon, name='koneksyon'),
-    path('dekonksyon/', views.dekonksyon, name='dekonksyon'),
+    path('koneksyon/', views.koneksyon, name='login'),
+    path('koneksyon-alt/', views.koneksyon, name='koneksyon'),
+    path('dekoneksyon/', views.dekoneksyon, name='dekoneksyon'),
     path('kou-yo/', views.lis_kou, name='lis_kou'),
-    path('peman/', views.peman, name='peman'),
-    path('detay-kou/<int:leson_id>/', views.detay_kou, name='detay_kou'),
-    path('kou/<int:pk>/', views.detay_kou, name='detay_kou'),
+    path('devwa/<int:devwa_id>/soumet/', views.soumet_devwa, name='soumet_devwa'),
 ]
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
